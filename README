@@ -16,7 +16,7 @@ Edit config/redis.yml to suit your redis installation:
     all:
       connections:
         local:
-          host: 127.0.0.1 
+          host: 127.0.0.1
           port: 6379
 
 You can also use URL based notation:
@@ -50,7 +50,7 @@ You can also use Predis cluster feature:
 Get a predis client
 -------------------
 
-To create a connection, use sfRedis::getClient() with the connection name as parameter:
+To create a connection, use ``sfRedis::getClient()`` with the connection name as parameter:
 
     $redis = sfRedis::getClient('myshard');
 
@@ -85,7 +85,7 @@ Doctrine cache
 
 The sfRedisPlugin provides a Doctrine cache backend.
 
-To enable it, edit ProjectConfiguration::configureDoctrine with:
+To enable it, edit ``ProjectConfiguration::configureDoctrine`` with:
 
     $cacheDriver = new Doctrine_Cache_Redis(array('server' => 'redis://127.0.0.1:6379', 'prefix' => 'dql:'));
     $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
@@ -101,11 +101,12 @@ You can also pass a Predis_Client object as an option:
 TODO
 ----
 
- * write tests
+* work with nginx HTTP redis module
+* write tests
 
 LINKS
 -----
 
- * Predis http://github.com/nrk/predis
- * redis http://code.google.com/p/redis/
+* Predis http://github.com/nrk/predis
+* redis http://code.google.com/p/redis/
 

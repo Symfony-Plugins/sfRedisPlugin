@@ -204,7 +204,7 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
     $pipe = $this->_redis->pipeline();
     $pipe->set($id, $data);
     if ($lifeTime) {
-      $pipe->ttl($id, $lifeTime);
+      $pipe->expire($id, $lifeTime);
     }
     return $pipe->execute();
   }

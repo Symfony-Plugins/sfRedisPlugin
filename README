@@ -1,0 +1,111 @@
+sfRedisPlugin
+=============
+
+The sfRedis plugin provides redis support to symfony (through Predis).
+
+Installation
+------------
+
+...
+
+Configuration
+-------------
+
+Edit config/redis.yml to suit your redis installation:
+
+    all:
+      connections:
+        local:
+          host: 127.0.0.1 
+          port: 6379
+
+You can also use URL based notation:
+
+    all:
+      connections:
+        local: redis://127.0.0.1:6379
+
+By default, there is a connection named "default" which targets a local redis server.
+
+All available parameters:
+
+    all:
+      connections:
+        local:
+          host: 127.0.0.1
+          port: 6379
+          database: 0
+          password: secret
+          connection_timeout: 5
+          read_write_timeout: 30
+
+You can also use Predis cluster feature:
+
+    all:
+      connections:
+        myshard:
+          - redis://192.168.0.1:6379
+          - redis://192.168.0.2:6379
+
+Get a predis client
+-------------------
+
+To create a connection, use sfRedis::getClient() with the connection name as parameter:
+
+    $redis = sfRedis::getClient('myshard');
+
+Or empty to use "default" connection:
+
+    $redis = sfRedis::getClient();
+
+Then follow Predis API to query the database
+
+    $redis->set('name', 'value');
+    $value = $redis->get('name');
+
+Symfony cache
+-------------
+
+The sfRedisPlugin provides a sfRedisCache class to use for view and/or i18n symfony cache.
+
+To enabled it, edit config/factories.yml:
+
+    all:
+      view_cache:
+        class: sfRedisCache
+        param:
+          connection: default
+          prefix: view:%SF_APP%:%SF_ENVIRONMENT%
+
+The parameter "connection" is the key defined in config/redis.yml.
+The parameter "prefix" is adjusted in this example.
+
+Doctrine cache
+--------------
+
+The sfRedisPlugin provides a Doctrine cache backend.
+
+To enable it, edit ProjectConfiguration::configureDoctrine with:
+
+    $cacheDriver = new Doctrine_Cache_Redis(array('server' => 'redis://127.0.0.1:6379', 'prefix' => 'dql:'));
+    $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
+
+The option "prefix" is recommended to keep redis server keys clean.
+
+You can also pass a Predis_Client object as an option:
+
+    $redis = Predis_Client::create(...);
+    $cacheDriver = new Doctrine_Cache_Redis(array('redis' => $redis));
+    $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
+
+TODO
+----
+
+ * write tests
+
+LINKS
+-----
+
+ * Predis http://github.com/nrk/predis
+ * redis http://code.google.com/p/redis/
+

@@ -1,19 +1,22 @@
 <?php
 
+/**
+ * redis:info task
+ *
+ * @uses      sfBaseTask
+ * @package   sfRedisPlugin
+ * @author    Benjamin VIELLARD <bicou@bicou.com>
+ * @license   The MIT License
+ * @version   SVN: $Id$
+ */
 class redisInfoTask extends sfBaseTask
 {
   protected function configure()
   {
-    // // add your own arguments here
-    // $this->addArguments(array(
-    //   new sfCommandArgument('my_arg', sfCommandArgument::REQUIRED, 'My argument'),
-    // ));
-
     $this->addOptions(array(
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name'),
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'prod'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'default'),
-      // add your own options here
     ));
 
     $this->namespace        = 'redis';
@@ -27,6 +30,14 @@ Call it with:
 EOF;
   }
 
+  /**
+   * execute task
+   *
+   * @param array $arguments
+   * @param array $options
+   * @access protected
+   * @return void
+   */
   protected function execute($arguments = array(), $options = array())
   {
     $redis = sfRedis::getClient($options['connection']);

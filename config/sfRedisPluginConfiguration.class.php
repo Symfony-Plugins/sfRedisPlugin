@@ -1,24 +1,28 @@
 <?php
 
 /**
- * TODO: short description.
+ * sfRedisPluginConfiguration
  *
- * TODO: long description.
- *
- * @version   $Id$
- * @author    Benjamin Viellard <benjamin.viellard@bicou.com>
+ * @uses      sfPluginConfiguration
+ * @package   sfRedisPlugin
+ * @author    Benjamin VIELLARD <bicou@bicou.com>
+ * @license   The MIT License
+ * @version   SVN: $Id$
  */
 class sfRedisPluginConfiguration extends sfPluginConfiguration
 {
-  const VERSION = '0.a';
-
+  /**
+   * path to config
+   *
+   * @var string
+   */
   const CONFIG_PATH = 'config/redis.yml';
 
   /**
-   * TODO: short description.
+   * initialize plugin
    *
-   * @return TODO
-   * @author Benjamin Viellard <benjamin.viellard@bicou.com>
+   * @access public
+   * @return void
    */
   public function initialize()
   {

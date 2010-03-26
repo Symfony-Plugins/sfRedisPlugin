@@ -5,17 +5,23 @@
  *
  * @package    sfRedisPlugin
  * @subpackage cache
- * @author     Thomas Parisot <thomas@oncle-tom.net>
+ * @author     Benjamin Viellard <bicou@bicou.com>
  * @version    SVN: $Id$
  */
 class sfRedisCache extends sfCache
 {
+  /**
+   * Predis client instance
+   *
+   * @var Predis_Client
+   * @access protected
+   */
   protected $redis = null;
 
   /**
    * Available options :
    *
-   * * config:   Configuration key to connection parameters
+   * * connection:   Configuration key to connection parameters
    *
    * @see sfCache
    */
@@ -88,7 +94,6 @@ class sfRedisCache extends sfCache
   /**
    * We manually remove keys as the redis glob style * == sfCache ** style
    *
-   * @author oncletom
    * @see sfCache
    */
   public function removePattern($pattern)
@@ -135,6 +140,7 @@ class sfRedisCache extends sfCache
    * Optimized getMany with Redis mget method
    *
    * @param array $keys
+   * @access public
    * @return array
    */
   public function getMany($keys)
@@ -147,9 +153,9 @@ class sfRedisCache extends sfCache
   /**
    * Checks if a key is expired or not
    *
-   * @author oncletom
    * @param string $key
-   * @return boolean
+   * @access public
+   * @return void
    */
   public function isExpired($key)
   {
@@ -161,9 +167,9 @@ class sfRedisCache extends sfCache
    *
    * Usefull to be mapped on an array. Faster than foreach
    *
-   * @protected
-   * @author oncletom
-   * @param string $value
+   * @param string $name
+   * @param string $suffix
+   * @access protected
    * @return string
    */
   protected function getKey($name, $suffix = null)

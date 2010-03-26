@@ -1,34 +1,47 @@
 <?php
 
 /**
- * TODO: short description.
+ * sfRedis
  *
- * TODO: long description.
- *
- * @version   $Id$
- * @author    Benjamin Viellard <benjamin.viellard@bicou.com>
- * @copyright (c) 2010 AGAPS
- * @since     2010-03-16
+ * @package   sfRedisPlugin
+ * @author    Benjamin VIELLARD <bicou@bicou.com>
+ * @license   The MIT License
+ * @version   SVN: $Id$
  */
 class sfRedis
 {
+  /**
+   * Array of configuration parameters
+   * @var array
+   */
   private static $config = null;
 
+  /**
+   * Array of Predis clients
+   * @var array
+   */
   private static $clients = array();
 
+  /**
+   * Initialize
+   *
+   * @param array $config
+   * @static
+   * @access public
+   * @return void
+   */
   public static function initialize($config)
   {
     self::$config = $config;
   }
 
   /**
-   * TODO: short description.
+   * Create a predis client on demand
    *
-   * @param string $connection Optional, defaults to 'default'.
-   *
-   * @return TODO
-   * @author Benjamin Viellard <benjamin.viellard@bicou.com>
-   * @since  2010-03-16
+   * @param string $connection
+   * @static
+   * @access public
+   * @return Predis_Client
    */
   public static function getClient($connection = 'default')
   {

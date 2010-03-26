@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * sfRedisConfigHandler
+ *
+ * @uses      sfYamlConfigHandler
+ * @package   sfRedisPlugin
+ * @author    Benjamin VIELLARD <bicou@bicou.com>
+ * @license   The MIT License
+ * @version   SVN: $Id$
+ */
 class sfRedisConfigHandler extends sfYamlConfigHandler
 {
   /**

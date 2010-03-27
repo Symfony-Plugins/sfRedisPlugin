@@ -1,16 +1,19 @@
 <?php
 
 /**
- * sfRedisPluginConfiguration
+ * sfRedisPlugin configuration.
  *
- * @uses      sfPluginConfiguration
- * @package   sfRedisPlugin
- * @author    Benjamin VIELLARD <bicou@bicou.com>
- * @license   The MIT License
- * @version   SVN: $Id$
+ * @package     sfRedisPlugin
+ * @subpackage  config
+ * @uses        sfPluginConfiguration
+ * @author      Benjamin VIELLARD <bicou@bicou.com>
+ * @license     The MIT License
+ * @version     SVN: $Id$
  */
 class sfRedisPluginConfiguration extends sfPluginConfiguration
 {
+  const VERSION = '1.0.0-DEV';
+
   /**
    * path to config
    *
@@ -26,25 +29,16 @@ class sfRedisPluginConfiguration extends sfPluginConfiguration
    */
   public function initialize()
   {
-    try
+    if ($this->configuration instanceof sfApplicationConfiguration)
     {
-      if ($this->configuration instanceof sfApplicationConfiguration)
-      {
-        $configCache = $this->configuration->getConfigCache();
-        $configCache->registerConfigHandler(self::CONFIG_PATH, 'sfRedisConfigHandler');
-        $config = include $configCache->checkConfig(self::CONFIG_PATH);
-      }
-      else
-      {
-        $config = sfRedisConfigHandler::getConfiguration(array(
-          $this->getRootDir().'/'.self::CONFIG_PATH,
-          $this->configuration->getRootDir().'/'.self::CONFIG_PATH
-        ));
-      }
+      $configCache = $this->configuration->getConfigCache();
+      $configCache->registerConfigHandler(self::CONFIG_PATH, 'sfRedisConfigHandler');
+      $config = include $configCache->checkConfig(self::CONFIG_PATH);
     }
-    catch (sfConfigurationException $e)
+    else
     {
-      $config = null;
+      $configPaths = $this->configuration->getConfigPaths(self::CONFIG_PATH);
+      $config = sfRedisConfigHandler::getConfiguration($configPaths);
     }
 
     sfRedis::initialize($config);

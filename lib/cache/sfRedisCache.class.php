@@ -67,20 +67,24 @@ class sfRedisCache extends sfCache
 
     if ($lifetime < 1)
     {
-      $response = $this->remove($key);
+      $ret = $this->remove($key);
     }
     else
     {
       $pkey = $this->getKey($key);
       $mkey = $this->getKey($key, '_lastmodified');
       $pipe = $this->redis->pipeline();
-      $pipe->mset(array($pkey => $data, $mkey => $_SERVER['REQUEST_TIME']));
+
+      $pipe->mset(array($pkey => $data, $mkey => time()));
       $pipe->expire($pkey, $lifetime);
       $pipe->expire($mkey, $lifetime);
-      $response = $pipe->execute();
+
+      $reply = $pipe->execute();
+
+      $ret = $reply[0] and $reply[1] and $reply[2];
     }
 
-    return $response;
+    return $ret;
   }
 
   /**
@@ -116,7 +120,7 @@ class sfRedisCache extends sfCache
   {
     if (sfCache::ALL === $mode)
     {
-      $this->removePattern('**');
+      $this->removePattern('*');
     }
   }
 
@@ -125,7 +129,8 @@ class sfRedisCache extends sfCache
    */
   public function getTimeout($key)
   {
-    return $_SERVER['REQUEST_TIME'] + $this->redis->ttl($this->getKey($key));
+    $ttl = $this->redis->ttl($this->getKey($key));
+    return $ttl > -1 ? time() + $ttl : 0;
   }
 
   /**
@@ -159,7 +164,7 @@ class sfRedisCache extends sfCache
    */
   public function isExpired($key)
   {
-    return $_SERVER['REQUEST_TIME'] >= $this->getTimeout($key);
+    return !$this->getTimeout($key);
   }
 
   /**

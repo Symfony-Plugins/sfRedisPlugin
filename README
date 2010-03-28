@@ -6,29 +6,37 @@ The sfRedis plugin provides redis support to symfony (through Predis).
 Installation
 ------------
 
-...
+You can install this plugin the usual way (RTFM), or if you want to work with the trunk:
+
+    $ cd plugins
+    $ svn co http://svn.symfony-project.com/plugins/sfRedisPlugin/trunk/ sfRedisPlugin
+
+Then activate the plugin in the `config/ProjectConfiguration.class.php` file.
 
 Configuration
 -------------
 
-Edit config/redis.yml to suit your redis installation:
+Edit `config/redis.yml` to suit your redis installation :
 
+    [yml]
     all:
       connections:
         local:
           host: 127.0.0.1
           port: 6379
 
-You can also use URL based notation:
+You can also use URL based notation :
 
+    [yml]
     all:
       connections:
         local: redis://127.0.0.1:6379
 
 By default, there is a connection named "default" which targets a local redis server.
 
-All available parameters:
+All available parameters :
 
+    [yml]
     all:
       connections:
         local:
@@ -39,8 +47,9 @@ All available parameters:
           connection_timeout: 5
           read_write_timeout: 30
 
-You can also use Predis cluster feature:
+You can also use Predis cluster feature :
 
+    [yml]
     all:
       connections:
         myshard:
@@ -50,26 +59,30 @@ You can also use Predis cluster feature:
 Get a predis client
 -------------------
 
-To create a connection, use ``sfRedis::getClient()`` with the connection name as parameter:
+To create a connection, use `sfRedis::getClient()` with the connection name as parameter :
 
+    [php]
     $redis = sfRedis::getClient('myshard');
 
 Or empty to use "default" connection:
 
+    [php]
     $redis = sfRedis::getClient();
 
 Then follow Predis API to query the database
 
+    [php]
     $redis->set('name', 'value');
     $value = $redis->get('name');
 
 Symfony cache
 -------------
 
-The sfRedisPlugin provides a sfRedisCache class to use for view and/or i18n symfony cache.
+The sfRedisPlugin provides a `sfRedisCache` class to use for view and/or i18n symfony cache.
 
-To enabled it, edit config/factories.yml:
+To enabled it, edit `config/factories.yml` :
 
+    [yml]
     all:
       view_cache:
         class: sfRedisCache
@@ -77,7 +90,7 @@ To enabled it, edit config/factories.yml:
           connection: default
           prefix: view:%SF_APP%:%SF_ENVIRONMENT%
 
-The parameter "connection" is the key defined in config/redis.yml.
+The parameter "connection" is the key defined in `config/redis.yml`.
 The parameter "prefix" is adjusted in this example.
 
 Doctrine cache
@@ -85,15 +98,17 @@ Doctrine cache
 
 The sfRedisPlugin provides a Doctrine cache backend.
 
-To enable it, edit ``ProjectConfiguration::configureDoctrine`` with:
+To enable it, edit `ProjectConfiguration::configureDoctrine` with :
 
+    [php]
     $cacheDriver = new Doctrine_Cache_Redis(array('server' => 'redis://127.0.0.1:6379', 'prefix' => 'dql:'));
     $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
 
 The option "prefix" is recommended to keep redis server keys clean.
 
-You can also pass a Predis_Client object as an option:
+You can also pass a `Predis_Client` object as an option:
 
+    [php]
     $redis = Predis_Client::create(...);
     $cacheDriver = new Doctrine_Cache_Redis(array('redis' => $redis));
     $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);

@@ -3,6 +3,7 @@ sfRedisPlugin
 
 The sfRedis plugin provides redis support to symfony (through Predis).
 
+
 Installation
 ------------
 
@@ -12,6 +13,7 @@ You can install this plugin the usual way (RTFM), or if you want to work with th
     $ svn co http://svn.symfony-project.com/plugins/sfRedisPlugin/trunk/ sfRedisPlugin
 
 Then activate the plugin in the `config/ProjectConfiguration.class.php` file.
+
 
 Configuration
 -------------
@@ -56,6 +58,7 @@ You can also use Predis cluster feature :
           - redis://192.168.0.1:6379
           - redis://192.168.0.2:6379
 
+
 Get a predis client
 -------------------
 
@@ -75,6 +78,7 @@ Then follow Predis API to query the database
     $redis->set('name', 'value');
     $value = $redis->get('name');
 
+
 Symfony cache
 -------------
 
@@ -92,6 +96,7 @@ To enabled it, edit `config/factories.yml` :
 
 The parameter "connection" is the key defined in `config/redis.yml`.
 The parameter "prefix" is adjusted in this example.
+
 
 Doctrine cache
 --------------
@@ -113,10 +118,20 @@ You can also pass a `Predis_Client` object as an option:
     $cacheDriver = new Doctrine_Cache_Redis(array('redis' => $redis));
     $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
 
+Since `sfRedis::getClient` returns a `Predis_Client`, you can use configuration from your `config/redis.yml`:
+
+    [php]
+    $cacheDriver = new Doctrine_Cache_Redis(array('redis' => sfRedis::getClient('local'), 'prefix' => 'dql:'));
+    $manager->setAttribute(Doctrine::ATTR_QUERY_CACHE, $cacheDriver);
+
+Please note, you need to enable the `sfRedisPlugin` *before* the `sfDoctrinePlugin` to make the previous snippet work.
+
+
 TODO
 ----
 
 * work with nginx HTTP redis module
+
 
 LINKS
 -----

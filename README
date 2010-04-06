@@ -84,7 +84,7 @@ Symfony cache
 
 The sfRedisPlugin provides a `sfRedisCache` class to use for view and/or i18n symfony cache.
 
-To enabled it, edit `config/factories.yml` :
+To enable it, edit `config/factories.yml` :
 
     [yml]
     all:

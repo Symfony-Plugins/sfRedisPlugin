@@ -80,7 +80,7 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
    *
    * @return array
    */
-  protected function getKeys()
+  protected function _getCacheKeys()
   {
     return $this->_redis->smembers($this->getCacheKeyIndexKey());
   }
@@ -91,65 +91,6 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
   public function count()
   {
     return $this->_redis->scard($this->getCacheKeyIndexKey());
-  }
-
-  /**
-   * @see Doctrine_Cache_Driver
-   */
-  public function deleteAll()
-  {
-    $keys = $this->getKeys();
-    foreach ($keys as $key) {
-      $this->delete($key);
-    }
-  }
-
-  /**
-   * @see Doctrine_Cache_Driver
-   */
-  public function deleteByRegex($regex)
-  {
-    $count = 0;
-    $keys = $this->getKeys();
-    foreach ($keys as $key) {
-      if (preg_match($regex, $key)) {
-        $count++;
-        $this->delete($key);
-      }
-    }
-    return $count;
-  }
-
-  /**
-   * @see Doctrine_Cache_Driver
-   */
-  public function deleteByPrefix($prefix)
-  {
-    $count = 0;
-    $keys = $this->getKeys();
-    foreach ($keys as $key) {
-      if (strpos($key, $prefix) === 0) {
-        $count++;
-        $this->delete($key);
-      }
-    }
-    return $count;
-  }
-
-  /**
-   * @see Doctrine_Cache_Driver
-   */
-  public function deleteBySuffix($suffix)
-  {
-    $count = 0;
-    $keys = $this->getKeys();
-    foreach ($keys as $key) {
-      if (substr($key, -1 * strlen($suffix)) == $suffix) {
-        $count++;
-        $this->delete($key);
-      }
-    }
-    return $count;
   }
 
   /**

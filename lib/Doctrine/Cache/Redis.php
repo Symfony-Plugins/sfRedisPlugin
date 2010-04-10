@@ -117,7 +117,9 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
    */
   protected function _doFetch($id, $testCacheValidity = true)
   {
-    return $this->_redis->get($id);
+    $value = $this->_redis->get($id);
+
+    return null === $value ? false : $value;
   }
 
   /**
@@ -128,7 +130,7 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
    */
   protected function _doContains($id)
   {
-    return $this->_redis->exists($id);
+    return $this->_redis->exists($id) ? $this->_redis->get($id.':timestamp') : false;
   }
 
   /**
@@ -143,11 +145,14 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
   protected function _doSave($id, $data, $lifeTime = false)
   {
     $pipe = $this->_redis->pipeline();
-    $pipe->set($id, $data);
+    $pipe->mset(array($id => $data, $id.':timestamp' => time()));
     if ($lifeTime) {
       $pipe->expire($id, $lifeTime);
+      $pipe->expire($id.':timestamp', $lifeTime);
     }
-    return $pipe->execute();
+    $reply = $pipe->execute();
+
+    return $reply[0] and (!$lifeTime or ($reply[1] and $reply[2]));
   }
 
   /**
@@ -159,7 +164,7 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
    */
   protected function _doDelete($id)
   {
-    return $this->_redis->delete($id);
+    return $this->_redis->delete($id, $id.':timestamp');
   }
 }
 

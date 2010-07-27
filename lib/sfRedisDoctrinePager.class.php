@@ -74,18 +74,10 @@ class sfRedisDoctrinePager extends sfPager
 
   public function findObject($id)
   {
-    $table = Doctrine_Core::getTable($this->getClass());
+    $table  = Doctrine_Core::getTable($this->getClass());
+    $method = $this->getParameter('tableMethod', 'find');
 
-    if ($this->hasParameter('tableMethod'))
-    {
-      $methodName = $this->getParameter('tableMethod');
-      return $table->$methodName()->andWhere('id = ?', $id)->fetchOne();
-    }
-    else
-    {
-      return $table->find($id);
-    }
-
+    return call_user_func(array($table, $method), $id);
   }
 }
 

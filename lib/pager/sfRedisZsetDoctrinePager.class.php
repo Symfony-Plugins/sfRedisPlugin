@@ -2,7 +2,7 @@
 
 /**
  * Redis pager on Sorted Sets + pager objects from Doctrine
- * 
+ *
  * Mix sfPager, Redis and Doctrine to allow paging on Doctrine records with sort in Redis
  *
  * Example of usage:
@@ -11,7 +11,7 @@
  *
  *  // somewhere authenticated (negative time for reverse order)
  *  sfRedis::getClient()->zadd($redis_key_name, -time(), $this->getUser()->getGuardUser()->id);
- *  
+ *
  *  // elsewhere
  *  $pager = new sfRedisZsetDoctrinePager('sfGuardUser', $redis_key_name, 10);
  *  // $pager->setParameter('tableMethod', 'cachedFind'); // optional, defaults to find
@@ -28,7 +28,7 @@
  * Notice: looping on the pager trigger as many "find" queries as elements on page,
  * this is far more efficient than doing a WHERE IN + ORDER BY FIELD in the DB,
  * many constant queries by id are also more cacheable
- * 
+ *
  * @version   $Id$
  * @author    Benjamin Viellard <benjamin.viellard@bicou.com>
  * @since     2010-08-04
@@ -37,11 +37,11 @@ class sfRedisZsetDoctrinePager extends sfRedisZsetPager
 {
   /**
    * create a new pager
-   * 
-   * @param mixed $model      Doctrine model name  
+   *
+   * @param mixed $model      Doctrine model name
    * @param mixed $key        Redis sort set key name
-   * @param mixed $maxPerPage Optional, defaults to 10. 
-   * 
+   * @param mixed $maxPerPage Optional, defaults to 10.
+   *
    * @author Benjamin Viellard <benjamin.viellard@bicou.com>
    * @since  2010-08-04
    */
@@ -50,7 +50,7 @@ class sfRedisZsetDoctrinePager extends sfRedisZsetPager
     parent::__construct($key, $maxPerPage);
     $this->setParameter('model', $model);
   }
-  
+
   /**
    * @see   sfRedisZsetPager
    */
@@ -69,14 +69,14 @@ class sfRedisZsetDoctrinePager extends sfRedisZsetPager
 
   /**
    * Fetch a Doctrine record from the pager offset value (triggered in loops)
-   * 
+   *
    * @param mixed $member redis zset member, doctrine id
-   * 
+   *
    * @return Doctrine_Record record found from id
    */
   protected function findObject($member)
   {
-    if ($id === null) return null;
+    if ($member === null) return null;
 
     $table  = Doctrine_Core::getTable($this->getParameter('model'));
     $method = $this->getParameter('tableMethod', 'find');

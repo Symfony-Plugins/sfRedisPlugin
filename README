@@ -127,9 +127,146 @@ Since `sfRedis::getClient` returns a `Predis_Client`, you can use configuration 
 Please note, you need to enable the `sfRedisPlugin` *before* the `sfDoctrinePlugin` to make the previous snippet work.
 
 
+Redis sfPager
+-------------
+
+The plugin provides two types of pager, one for redis lists and one for sorted sets.
+
+__Lists__: imagine you populate a redis list :
+
+    [php]
+    $client = sfRedis::getClient();
+    $key = 'mylist';
+    $client->rpush($key, 'a');
+    $client->rpush($key, 'b');
+    // ...
+    $client->rpush($key, 'z');
+
+To get a pager on this list, use the following code :
+
+    [php]
+    // signature : __construct($redisKey, $maxPerPage)
+    $pager = new sfRedisListPager('mylist', 10);
+    $pager->setPage($page);
+    $pager->init();
+    // use it as any sfPager
+    foreach ($pager as $element)
+    {
+      echo $element; // = 'a', 'b', ..., 'j'
+    }
+
+
+__Sorted sets__: let's setup a "movies-by-year" set with year as score :
+
+    [php]
+    $client = sfRedis::getClient();
+    $key = 'movies-by-year';
+    $client->zadd($key, 2007, 'Rocky Balboa');
+    $client->zadd($key, 1990, 'Rocky V');
+    $client->zadd($key, 1986, 'Rocky IV');
+    $client->zadd($key, 1982, 'Rocky III');
+    $client->zadd($key, 1979, 'Rocky II');
+    $client->zadd($key, 1976, 'Rocky');
+
+The corresponding pager is :
+
+    [php]
+    // signature : __construct($redisKey, $maxPerPage)
+    $pager = new sfRedisZsetPager('movies-by-year', 10);
+    $pager->setPage($page);
+    $pager->init();
+    // use it as any sfPager
+    foreach ($pager as $element)
+    {
+      echo $element; // = 'Rocky', 'Rocky II', 'Rocky III', ...
+      echo $client->zscore($key, $element); // = 1976, 1979, 1982, ...
+    }
+
+Note: the results are ordered by "score" ascending.
+As the ZREVRANGEBYSCORE command does not yet exists in redis, there is only one ordering possible.
+If you want reverse order, you have to store scores negative.
+
+If you want to filter results by year, set parameters "min" and/or "max" :
+
+    [php]
+    $pager = new sfRedisZsetPager('movies', 10);
+    $pager->setParameter('min', 1980);
+    $pager->setParameter('max', 2000);
+    // ...
+
+
+
+sfRedisZsetDoctrinePager = sfPager + Redis + Doctrine
+-----------------------------------------------------
+
+The `sfRedisZsetDoctrinePager` allows you to paginate on redis sorted sets with Doctrine record as pager objects.
+
+Take this schema.yml example :
+
+    [yml]
+    Movie:
+      columns:
+        year:   integer(2)
+        title:  string(200)
+
+And fixtures :
+
+    [yml]
+    Movie:
+      rocky:   { year: 1976, title: 'Rocky' }
+      rocky_2: { year: 1979, title: 'Rocky II' }
+      # ...
+
+
+Imagine you sync somehow in Redis key 'movie:year' a set sorted by year with record id as member :
+
+    [php]
+    sfRedis::getClient()->zadd('movie:year', $movie->year, $movie->id);
+
+
+You can then paginate on movies objects sorted by year with this code :
+
+    [php]
+    // signature : __construct($modelName, $redisKey, $maxPerPage)
+    $pager = new sfRedisZsetDoctrinePager('Movie', 'movie:year', 10);
+    $pager->setPage($page);
+    $pager->init();
+
+    foreach ($pager as $movie)
+    {
+      // each iteration calls Doctrine_core::getTable('Movie')->find($element)
+      // so $movie is an instance of Movie
+      echo link_to($movie->title, 'movie_show', $movie);
+    }
+
+Each iteration on the pager makes a "find" query, so this makes as many queries as items per page.
+But it's much more efficient to do many "WHERE id = const" queries than doing a WHERE IN + ORDER BY FIELD(), the order is already done by redis so you don't need to tell your DB to order the found records in a temporary buffer, and those queries are more cacheable.
+
+You can also go further by using a custom tableMethod :
+
+    [php]
+    // Custom find with cache enabled
+    class MovieTable
+    {
+      public function findUseCache($id)
+      {
+        return $this->createQuery()->where('id = ?', $id)->useResultCache(true, 3600, 'movie_'.$id)->fetchOne();
+      }
+    }
+
+    $pager = new sfRedisZsetDoctrinePager('Movie', 'movie:year', 10);
+    $pager->setParameter('tableMethod', 'findUseCache');
+    $pager->setPage($page);
+    $pager->init();
+
+
+Now you have a sortable pager on Doctrine records without (almost) querying the database, taking advantage of redis sort speed.
+
+
 TODO
 ----
 
+* implement a pager for SORT commands
 * work with nginx HTTP redis module
 
 

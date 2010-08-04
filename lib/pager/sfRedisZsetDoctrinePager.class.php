@@ -13,8 +13,7 @@
  *  sfRedis::getClient()->zadd($redis_key_name, -time(), $this->getUser()->getGuardUser()->id);
  *  
  *  // elsewhere
- *  $pager = new sfRedisZsetDoctrinePager($redis_key_name, 10);
- *  $pager->setParameter('model', 'sfGuardUser'); // required
+ *  $pager = new sfRedisZsetDoctrinePager('sfGuardUser', $redis_key_name, 10);
  *  // $pager->setParameter('tableMethod', 'cachedFind'); // optional, defaults to find
  *  // $pager->setParameter('connection', 'connection_name_in_yml'); // optional
  *  // $pager->setParameter('min', '-inf'); // optional
@@ -37,18 +36,21 @@
 class sfRedisZsetDoctrinePager extends sfRedisZsetPager
 {
   /**
-   * @see   sfPager
+   * create a new pager
+   * 
+   * @param mixed $model      Doctrine model name  
+   * @param mixed $key        Redis sort set key name
+   * @param mixed $maxPerPage Optional, defaults to 10. 
+   * 
+   * @author Benjamin Viellard <benjamin.viellard@bicou.com>
+   * @since  2010-08-04
    */
-  public function init()
+  public function __construct($model, $key, $maxPerPage = 10)
   {
-    if (!$this->hasParameter('model'))
-    {
-      throw new sfConfigurationException(sprintf('%s needs "model" parameter', __CLASS__));
-    }
-
-    parent::init();
+    parent::__construct($key, $maxPerPage);
+    $this->setParameter('model', $model);
   }
-
+  
   /**
    * @see   sfRedisZsetPager
    */

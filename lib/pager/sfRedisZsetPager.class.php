@@ -2,7 +2,7 @@
 
 /**
  * Redis implementation of sfPager for Sorted Sets elements
- * 
+ *
  * Example of usage :
  *
  *  $redis_key_name = 'myzset';
@@ -13,7 +13,7 @@
  *  $pager->init();
  *
  * The $class parameter of constructor is actually the redis key name
- * 
+ *
  * @link      http://code.google.com/p/redis/wiki/SortedSets
  * @version   $Id$
  * @author    Benjamin Viellard <benjamin.viellard@bicou.com>
@@ -77,10 +77,10 @@ class sfRedisZsetPager extends sfPager
 
   /**
    * Returns Redis elements from range
-   * 
+   *
    * @param integer $offset start index
    * @param integer $count  number of elements to return
-   * 
+   *
    * @return array
    * @link  http://code.google.com/p/redis/wiki/ZrangebyscoreCommand
    * @link  http://code.google.com/p/redis/wiki/ZrangeCommand
@@ -90,19 +90,41 @@ class sfRedisZsetPager extends sfPager
     $client = sfRedis::getClient($this->getParameter('connection', 'default'));
     $start  = $offset - 1;
 
+    $reverse = $this->getParameter('reverse', false);
+
     if ($this->hasParameter('min') or $this->hasParameter('max'))
     {
-      // ZRANGEBYSCORE key min max [LIMIT offset count]
-      return $client->zrangebyscore($this->getClass(),
-        $this->getParameter('min', '-inf'),
-        $this->getParameter('max', '+inf'),
-        array('limit' => array('offset' => $start, 'count' => $count))
-      );
+      if ($reverse)
+      {
+        // ZREVRANGEBYSCORE key max min [LIMIT offset count]
+        return $client->zrevrangebyscore($this->getClass(),
+          $this->getParameter('max', '+inf'),
+          $this->getParameter('min', '-inf'),
+          array('limit' => array('offset' => $start, 'count' => $count))
+        );
+      }
+      else
+      {
+        // ZRANGEBYSCORE key min max [LIMIT offset count]
+        return $client->zrangebyscore($this->getClass(),
+          $this->getParameter('min', '-inf'),
+          $this->getParameter('max', '+inf'),
+          array('limit' => array('offset' => $start, 'count' => $count))
+        );
+      }
     }
     else
     {
-      // ZRANGE key start end
-      return $client->zrange($this->getClass(), $start, $start + $count - 1);
+      if ($reverse)
+      {
+        // ZRANGE key start end
+        return $client->zrevrange($this->getClass(), $start, $start + $count - 1);
+      }
+      else
+      {
+        // ZRANGE key start end
+        return $client->zrange($this->getClass(), $start, $start + $count - 1);
+      }
     }
   }
 }

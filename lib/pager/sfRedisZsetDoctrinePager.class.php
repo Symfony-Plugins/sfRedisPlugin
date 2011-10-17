@@ -9,13 +9,14 @@
  *
  *  $redis_key_name = 'user:online';
  *
- *  // somewhere authenticated (negative time for reverse order)
- *  sfRedis::getClient()->zadd($redis_key_name, -time(), $this->getUser()->getGuardUser()->id);
+ *  // somewhere authenticated
+ *  sfRedis::getClient()->zadd($redis_key_name, time(), $this->getUser()->getGuardUser()->id);
  *
  *  // elsewhere
  *  $pager = new sfRedisZsetDoctrinePager('sfGuardUser', $redis_key_name, 10);
  *  // $pager->setParameter('tableMethod', 'cachedFind'); // optional, defaults to find
  *  // $pager->setParameter('connection', 'connection_name_in_yml'); // optional
+ *  // $pager->setParameter('reverse', true); // reverse order
  *  // $pager->setParameter('min', '-inf'); // optional
  *  // $pager->setParameter('max', -time() + 3600); // optional
  *  $pager->init();

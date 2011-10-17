@@ -164,7 +164,7 @@ class Doctrine_Cache_Redis extends Doctrine_Cache_Driver
    */
   protected function _doDelete($id)
   {
-    return $this->_redis->delete($id, $id.':timestamp');
+    return $this->_redis->del($id, $id.':timestamp');
   }
 }
 

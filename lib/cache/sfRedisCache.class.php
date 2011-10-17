@@ -92,7 +92,7 @@ class sfRedisCache extends sfCache
    */
   public function remove($key)
   {
-    return $this->redis->delete($this->getKey($key), $this->getKey($key, '_lastmodified'));
+    return $this->redis->del($this->getKey($key), $this->getKey($key, '_lastmodified'));
   }
 
   /**
@@ -152,7 +152,7 @@ class sfRedisCache extends sfCache
   {
     $cache_keys = array_map(array($this, 'getKey'), $keys);
 
-    return array_combine($keys, $this->redis->getMultiple($cache_keys));
+    return array_combine($keys, $this->redis->mget($cache_keys));
   }
 
   /**

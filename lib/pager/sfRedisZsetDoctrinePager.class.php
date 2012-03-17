@@ -46,10 +46,11 @@ class sfRedisZsetDoctrinePager extends sfRedisZsetPager
    * @author Benjamin Viellard <benjamin.viellard@bicou.com>
    * @since  2010-08-04
    */
-  public function __construct($model, $key, $maxPerPage = 10)
+  public function __construct($model, $key, $maxPerPage = 10, $auto_clean = false)
   {
     parent::__construct($key, $maxPerPage);
     $this->setParameter('model', $model);
+    $this->setParameter('auto_clean', $auto_clean);
   }
 
   /**
@@ -82,7 +83,15 @@ class sfRedisZsetDoctrinePager extends sfRedisZsetPager
     $table  = Doctrine_Core::getTable($this->getParameter('model'));
     $method = $this->getParameter('tableMethod', 'find');
 
-    return call_user_func(array($table, $method), $member);
+    $object = call_user_func(array($table, $method), $member);
+
+    if ($this->getParameter('auto_clean') and !($object and $object->exists()))
+    {
+        $client = sfRedis::getClient($this->getParameter('connection', 'default'));
+        $client->zrem($this->getClass(), $member);
+    }
+
+    return $object;
   }
 }
 
